@@ -1,0 +1,255 @@
+==============================================================================
+STEP 1: LOAD & CLEAN DATA
+==============================================================================
+Raw shape: (1200, 16)
+Missing values before imputation:
+Annual_Income            24
+Customer_Satisfaction    17
+Email_Engagement_Rate    11
+dtype: int64
+Missing values after imputation: 0
+
+==============================================================================
+STEP 2-3: EDA (SKEWNESS) + BOX-COX TRANSFORMATION
+==============================================================================
+Skewness before Box-Cox:
+Days_Since_Last_Purchase    2.116007
+Membership_Years            1.870368
+Website_Usage_Hours_Week    1.625282
+App_Usage_Hours_Week        1.422240
+Annual_Income               1.041331
+Email_Engagement_Rate       0.524215
+Annual_Spending             0.393958
+Num_Purchases_Last_Year     0.333665
+Age                         0.142827
+Avg_Session_Length_Min      0.075081
+Customer_Satisfaction      -0.131780
+dtype: float64
+
+Box-Cox lambdas (col: (lambda, shift)): {'Annual_Income': (np.float64(-0.018337394903774475), 0), 'Membership_Years': (np.float64(0.23830577557564536), 0), 'Days_Since_Last_Purchase': (np.float64(0.16516939084216423), np.float64(1.0)), 'App_Usage_Hours_Week': (np.float64(0.33964118274188515), 0), 'Website_Usage_Hours_Week': (np.float64(0.2431824953883638), 0), 'Num_Purchases_Last_Year': (np.float64(0.580237621896284), 0), 'Annual_Spending': (np.float64(-0.02823716286042245), 0)}
+
+Skewness after Box-Cox:
+Annual_Spending             0.000354
+Annual_Income               0.000168
+Num_Purchases_Last_Year    -0.002979
+Website_Usage_Hours_Week   -0.005744
+App_Usage_Hours_Week       -0.012439
+Days_Since_Last_Purchase   -0.038739
+Membership_Years           -0.046409
+dtype: float64
+
+==============================================================================
+STEP 4-5: ONE-HOT ENCODING + STANDARD SCALING
+==============================================================================
+Categorical columns one-hot encoded: ['Gender', 'Region', 'Membership_Type', 'Device_Preference']
+Final feature matrix shape: (1200, 19)
+
+==============================================================================
+STEP 6: MULTICOLLINEARITY CHECK (VIF)
+==============================================================================
+Features dropped for high VIF (>8.0): None
+Final VIF table:
+Region_North                    1.612679
+Region_South                    1.565437
+Region_West                     1.531967
+Device_Preference_Website       1.462339
+Device_Preference_Mobile App    1.445164
+Membership_Type_Silver          1.329467
+Membership_Type_Gold            1.292289
+Membership_Type_Platinum        1.219854
+Annual_Income                   1.017923
+App_Usage_Hours_Week            1.016723
+Membership_Years                1.016408
+Age                             1.015665
+Website_Usage_Hours_Week        1.015446
+Num_Purchases_Last_Year         1.014383
+Avg_Session_Length_Min          1.014050
+Customer_Satisfaction           1.012112
+Email_Engagement_Rate           1.011794
+Days_Since_Last_Purchase        1.010843
+Gender_Male                     1.009970
+dtype: float64
+
+==============================================================================
+STEP 7a: BACKWARD ELIMINATION (BIC-BASED)
+==============================================================================
+Selected 17 features via backward elimination:
+['Age', 'Annual_Income', 'Membership_Years', 'Avg_Session_Length_Min', 'App_Usage_Hours_Week', 'Website_Usage_Hours_Week', 'Num_Purchases_Last_Year', 'Customer_Satisfaction', 'Days_Since_Last_Purchase', 'Email_Engagement_Rate', 'Region_North', 'Region_South', 'Membership_Type_Gold', 'Membership_Type_Platinum', 'Membership_Type_Silver', 'Device_Preference_Mobile App', 'Device_Preference_Website']
+
+Final BIC: -4095.75
+
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:        Annual_Spending   R-squared:                       0.864
+Model:                            OLS   Adj. R-squared:                  0.863
+Method:                 Least Squares   F-statistic:                     443.5
+Date:                Mon, 17 Aug 2026   Prob (F-statistic):               0.00
+Time:                        18:19:55   Log-Likelihood:                 2111.7
+No. Observations:                1200   AIC:                            -4187.
+Df Residuals:                    1182   BIC:                            -4096.
+Df Model:                          17                                         
+Covariance Type:            nonrobust                                         
+================================================================================================
+                                   coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------------------
+const                            7.7369      0.001   6387.939      0.000       7.735       7.739
+Age                              0.0076      0.001      6.260      0.000       0.005       0.010
+Annual_Income                    0.0562      0.001     45.995      0.000       0.054       0.059
+Membership_Years                 0.0316      0.001     25.923      0.000       0.029       0.034
+Avg_Session_Length_Min           0.0159      0.001     13.074      0.000       0.014       0.018
+App_Usage_Hours_Week             0.0221      0.001     18.061      0.000       0.020       0.024
+Website_Usage_Hours_Week         0.0109      0.001      8.941      0.000       0.009       0.013
+Num_Purchases_Last_Year          0.0292      0.001     23.951      0.000       0.027       0.032
+Customer_Satisfaction            0.0162      0.001     13.338      0.000       0.014       0.019
+Days_Since_Last_Purchase        -0.0083      0.001     -6.792      0.000      -0.011      -0.006
+Email_Engagement_Rate            0.0189      0.001     15.552      0.000       0.017       0.021
+Region_North                     0.0067      0.001      5.101      0.000       0.004       0.009
+Region_South                    -0.0035      0.001     -2.654      0.008      -0.006      -0.001
+Membership_Type_Gold             0.0482      0.001     35.063      0.000       0.046       0.051
+Membership_Type_Platinum         0.0727      0.001     54.355      0.000       0.070       0.075
+Membership_Type_Silver           0.0207      0.001     14.793      0.000       0.018       0.023
+Device_Preference_Mobile App    -0.0071      0.001     -4.896      0.000      -0.010      -0.004
+Device_Preference_Website       -0.0170      0.001    -11.661      0.000      -0.020      -0.014
+==============================================================================
+Omnibus:                        8.800   Durbin-Watson:                   2.046
+Prob(Omnibus):                  0.012   Jarque-Bera (JB):               12.239
+Skew:                          -0.015   Prob(JB):                      0.00220
+Kurtosis:                       3.494   Cond. No.                         1.92
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+==============================================================================
+STEP 7b: 5-FOLD CROSS VALIDATION
+==============================================================================
+R^2 per fold: [0.8597 0.8347 0.8394 0.8868 0.8616]
+Mean CV R^2: 0.8565  (+/- 0.0186)
+
+==============================================================================
+STEP 7c: LASSO REGULARIZATION (feature-selection cross-check)
+==============================================================================
+Optimal alpha (lambda): 0.00005
+Features shrunk to zero by Lasso: None
+
+Lasso-retained coefficients (sorted by |coef|):
+Membership_Type_Platinum        0.072671
+Annual_Income                   0.056155
+Membership_Type_Gold            0.047956
+Membership_Years                0.031498
+Num_Purchases_Last_Year         0.029199
+App_Usage_Hours_Week            0.022028
+Membership_Type_Silver          0.020605
+Email_Engagement_Rate           0.018914
+Device_Preference_Website      -0.016548
+Customer_Satisfaction           0.016114
+Avg_Session_Length_Min          0.015965
+Website_Usage_Hours_Week        0.010928
+Days_Since_Last_Purchase       -0.008217
+Age                             0.007462
+Device_Preference_Mobile App   -0.006762
+Region_North                    0.005429
+Region_South                   -0.004617
+Gender_Male                    -0.003157
+Region_West                    -0.002229
+dtype: float64
+
+==============================================================================
+FEATURE SELECTION AGREEMENT CHECK
+==============================================================================
+Backward elimination features (17): ['Age', 'Annual_Income', 'Membership_Years', 'Avg_Session_Length_Min', 'App_Usage_Hours_Week', 'Website_Usage_Hours_Week', 'Num_Purchases_Last_Year', 'Customer_Satisfaction', 'Days_Since_Last_Purchase', 'Email_Engagement_Rate', 'Region_North', 'Region_South', 'Membership_Type_Gold', 'Membership_Type_Platinum', 'Membership_Type_Silver', 'Device_Preference_Mobile App', 'Device_Preference_Website']
+Lasso-retained features (19): ['Membership_Type_Platinum', 'Annual_Income', 'Membership_Type_Gold', 'Membership_Years', 'Num_Purchases_Last_Year', 'App_Usage_Hours_Week', 'Membership_Type_Silver', 'Email_Engagement_Rate', 'Device_Preference_Website', 'Customer_Satisfaction', 'Avg_Session_Length_Min', 'Website_Usage_Hours_Week', 'Days_Since_Last_Purchase', 'Age', 'Device_Preference_Mobile App', 'Region_North', 'Region_South', 'Gender_Male', 'Region_West']
+Overlap between the two methods: 17 features
+
+==============================================================================
+STEP 8: FINAL MULTIPLE LINEAR REGRESSION MODEL
+==============================================================================
+R^2:          0.8645
+Adjusted R^2: 0.8625
+
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:        Annual_Spending   R-squared:                       0.864
+Model:                            OLS   Adj. R-squared:                  0.863
+Method:                 Least Squares   F-statistic:                     443.5
+Date:                Mon, 17 Aug 2026   Prob (F-statistic):               0.00
+Time:                        18:19:55   Log-Likelihood:                 2111.7
+No. Observations:                1200   AIC:                            -4187.
+Df Residuals:                    1182   BIC:                            -4096.
+Df Model:                          17                                         
+Covariance Type:            nonrobust                                         
+================================================================================================
+                                   coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------------------
+const                            7.7369      0.001   6387.939      0.000       7.735       7.739
+Age                              0.0076      0.001      6.260      0.000       0.005       0.010
+Annual_Income                    0.0562      0.001     45.995      0.000       0.054       0.059
+Membership_Years                 0.0316      0.001     25.923      0.000       0.029       0.034
+Avg_Session_Length_Min           0.0159      0.001     13.074      0.000       0.014       0.018
+App_Usage_Hours_Week             0.0221      0.001     18.061      0.000       0.020       0.024
+Website_Usage_Hours_Week         0.0109      0.001      8.941      0.000       0.009       0.013
+Num_Purchases_Last_Year          0.0292      0.001     23.951      0.000       0.027       0.032
+Customer_Satisfaction            0.0162      0.001     13.338      0.000       0.014       0.019
+Days_Since_Last_Purchase        -0.0083      0.001     -6.792      0.000      -0.011      -0.006
+Email_Engagement_Rate            0.0189      0.001     15.552      0.000       0.017       0.021
+Region_North                     0.0067      0.001      5.101      0.000       0.004       0.009
+Region_South                    -0.0035      0.001     -2.654      0.008      -0.006      -0.001
+Membership_Type_Gold             0.0482      0.001     35.063      0.000       0.046       0.051
+Membership_Type_Platinum         0.0727      0.001     54.355      0.000       0.070       0.075
+Membership_Type_Silver           0.0207      0.001     14.793      0.000       0.018       0.023
+Device_Preference_Mobile App    -0.0071      0.001     -4.896      0.000      -0.010      -0.004
+Device_Preference_Website       -0.0170      0.001    -11.661      0.000      -0.020      -0.014
+==============================================================================
+Omnibus:                        8.800   Durbin-Watson:                   2.046
+Prob(Omnibus):                  0.012   Jarque-Bera (JB):               12.239
+Skew:                          -0.015   Prob(JB):                      0.00220
+Kurtosis:                       3.494   Cond. No.                         1.92
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+==============================================================================
+STEP 9: INFLUENTIAL POINT DETECTION (Cook's Distance, DFFITS)
+==============================================================================
+n=1200, p=18
+Cook's Distance threshold (4/n): 0.00333
+Observations flagged by Cook's Distance: 69 (5.8% of data)
+DFFITS threshold (2*sqrt(p/n)): 0.24495
+Observations flagged by DFFITS: 69 (5.8% of data)
+Flagged by BOTH methods: 69 observations
+
+==============================================================================
+STEP 10: MLR ASSUMPTION VERIFICATION
+==============================================================================
+Shapiro-Wilk normality test: W=0.9969, p=0.0200 -> Deviates from normality
+Breusch-Pagan test: LM stat=39.1260, p=0.0017 -> Heteroscedasticity detected
+Durbin-Watson statistic: 2.0463 -> No strong autocorrelation (~2.0 is ideal)
+
+Final VIF check on selected features:
+Device_Preference_Website       1.451461
+Device_Preference_Mobile App    1.438999
+Membership_Type_Silver          1.328698
+Membership_Type_Gold            1.290441
+Membership_Type_Platinum        1.218930
+Region_North                    1.174764
+Region_South                    1.172518
+Annual_Income                   1.017218
+App_Usage_Hours_Week            1.016379
+Membership_Years                1.015810
+Website_Usage_Hours_Week        1.014536
+Num_Purchases_Last_Year         1.014037
+Age                             1.013705
+Avg_Session_Length_Min          1.012799
+Email_Engagement_Rate           1.011714
+Customer_Satisfaction           1.011631
+Days_Since_Last_Purchase        1.010837
+dtype: float64
+Max VIF: 1.45 -> No serious multicollinearity (<10)
+
+==============================================================================
+SUMMARY
+==============================================================================
+Final R^2:          0.8645
+Final Adjusted R^2: 0.8625
+Number of predictors in final model: 17
